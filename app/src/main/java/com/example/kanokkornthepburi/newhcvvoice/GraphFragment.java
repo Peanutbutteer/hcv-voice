@@ -157,8 +157,12 @@ public class GraphFragment extends Fragment {
     }
 
     public void drawChart(final ArrayList<History> histories) {
-        if (histories == null || histories.size() == 0 || histories.get(0).getDeviceHistories() == null)
+        if (histories == null || histories.size() == 0 ||
+                histories.get(0).getDeviceHistories().size() == 0 ||
+                histories.get(0).getDeviceHistories() == null) {
+            chart.clear();
             return;
+        }
 
         ArrayList<IBarDataSet> dataSets = new ArrayList<>();
 
