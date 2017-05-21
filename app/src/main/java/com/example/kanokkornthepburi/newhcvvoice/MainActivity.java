@@ -147,11 +147,22 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
                         if (sentence.contains("เปิด")) {
                             status = true;
                         }
-                        Fragment fragment = getActiveFragment(vpMain, 0);
-                        if (fragment instanceof VoiceControlsFragment) {
-                            onChangeStatus(device, status);
-                        }
+                        onChangeStatus(device, status);
                     }
+                }
+            }
+            if (sentence.contains("ทั้งหมด")) {
+                boolean status = false;
+                if (sentence.contains("ปิด")) {
+                    status = false;
+                }
+                if (sentence.contains("เปิด")) {
+                    status = true;
+                }
+                if (!UserData.getInstance().getActiveController().isEmpty()) {
+                    microgear.chat(UserData.getInstance().getActiveController(), UserData.getInstance().getUsername() + " all" + (status ? " ON" : " OFF"));
+                } else {
+                    showSnackBar("Please select MicroController before make order.");
                 }
             }
             if (UserData.getInstance().getMicroControllers() != null) {
@@ -161,6 +172,7 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
                             getSupportActionBar().setSubtitle("Home: " + microController.getNameEng());
                             UserData.getInstance().setActiveController(microController.getNameEng());
                             refreshDevices();
+                            refreshGraph();
                         }
                     }
                 }
@@ -237,6 +249,7 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
                         if (getSupportActionBar() != null) {
                             getSupportActionBar().setSubtitle("Home: " + microController.getNameEng());
                         }
+                        refreshGraph();
                         refreshDevices();
                     }
                 }
@@ -244,6 +257,9 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
         return super.onOptionsItemSelected(item);
     }
 
+    private void refreshGraph() {
+        EventBus.getDefault().post(new RefreshDeviceEvent());
+    }
 
     @Override
     protected void onStop() {

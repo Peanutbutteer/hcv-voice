@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">newHCvVoice</string>
+    <string-array name="selectGraph">
+        <item>Day</item>
+        <item>Week</item>
+        <item>Month</item>
+    </string-array>
 </resources>

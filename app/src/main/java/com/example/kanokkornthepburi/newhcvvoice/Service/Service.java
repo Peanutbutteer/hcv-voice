@@ -37,4 +37,8 @@ public interface Service {
     @POST("edit_device.php")
     @FormUrlEncoded
     Call<ActionResponse> editDevice(@Field("id") int id, @Field("deviceName") String nameEng, @Field("deviceNameTH") String nameThai);
+
+    @POST("show_history_dynamic.php")
+    @FormUrlEncoded
+    Call<HistoryResponse> getHistory(@Field("Type") String type, @Field("Controller") String microController);
 }
