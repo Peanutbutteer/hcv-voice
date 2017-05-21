@@ -1,9 +1,5 @@
 package com.example.kanokkornthepburi.newhcvvoice.Service;
 
-/**
- * Created by satjawatpanakarn on 5/21/2017 AD.
- */
-
 public class MicroGearDevice {
     private String type;
     private String gear;

@@ -57,20 +57,17 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
     Toolbar toolbar;
     @BindView(R.id.clRoot)
     CoordinatorLayout clRoot;
-    private Microgear microgear;
     private List<MicroGearDevice> microGearDeviceList = new ArrayList<>();
 
     Call<MicroResponse> microResponseCall;
+    private Microgear microgear = new Microgear(this);
 
 
     private void connectMicrogear() {
-        if (microgear == null) {
-            microgear = new Microgear(this);
             microgear.setCallback(this);
             microgear.disconnect();
             microgear.connect(Config.appid, Config.key, Config.secret, Config.alias);
             microgear.subscribe(Config.topicRead);
-        }
     }
 
     private void refreshDeviceList() {
@@ -87,6 +84,12 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
             public void onFailure(Call<MicroResponse> call, Throwable t) {
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        microgear.bindServiceResume();
     }
 
     @Override
@@ -183,6 +186,7 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
 
     private void refreshDevices() {
         EventBus.getDefault().post(new RefreshDeviceEvent());
+        checkOpenDevices();
     }
 
 
@@ -199,15 +203,6 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
             }
         }
         return true;
-    }
-
-    public Fragment getActiveFragment(ViewPager container, int position) {
-        String name = makeFragmentName(container.getId(), position);
-        return getSupportFragmentManager().findFragmentByTag(name);
-    }
-
-    private static String makeFragmentName(int viewId, int index) {
-        return "android:switcher:" + viewId + ":" + index;
     }
 
     @Override
@@ -283,7 +278,7 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
         Log.e("onMessage:message", message);
         Log.e("onMessage:topic", topic);
         if (message.contains(UserData.getInstance().getActiveController())) {
-            EventBus.getDefault().post(new RefreshDeviceEvent());
+            refreshDevices();
             if (message.contains(UserData.getInstance().getUsername())) {
                 int index = message.indexOf(' ', message.indexOf(' ') + 1);
                 String messageSplit = message.substring(index, message.length() - 1);
@@ -319,6 +314,14 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
             microGearDeviceList.add(device);
         }
 
+        checkOpenDevices();
+    }
+
+    private void checkOpenDevices() {
+        if (microGearDeviceList.size() == 0) {
+            EventBus.getDefault().post(new DisableDeviceEvent());
+            return;
+        }
         for (int i = 0; i < microGearDeviceList.size(); i++) {
             if (microGearDeviceList.get(i).getAlias().equals(UserData.getInstance().getActiveController())) {
                 if (microGearDeviceList.get(i).getType().equals("online")) {
@@ -328,11 +331,13 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
                 }
             }
         }
-        if (microGearDeviceList.size() == 0) {
-            EventBus.getDefault().post(new DisableDeviceEvent());
-        }
 
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        microgear.disconnect();
     }
 
     @Override

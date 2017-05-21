@@ -3,10 +3,6 @@ package com.example.kanokkornthepburi.newhcvvoice.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-/**
- * Created by satjawatpanakarn on 10/9/2016 AD.
- */
-
 public class PrefUtils {
     private SharedPreferences mSharePreferences;
     private Context mContext;

@@ -7,10 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import com.example.kanokkornthepburi.newhcvvoice.Utils.PrefUtils;
 import com.example.kanokkornthepburi.newhcvvoice.Utils.PromptUtils;
 
-/**
- * Created by satjawatpanakarn on 5/21/2017 AD.
- */
-
 public class PromptActivity extends AppCompatActivity {
     Handler handler = new Handler();
     private long time;

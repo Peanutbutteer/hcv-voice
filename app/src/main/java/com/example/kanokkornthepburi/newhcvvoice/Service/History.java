@@ -4,10 +4,6 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-/**
- * Created by satjawatpanakarn on 5/22/2017 AD.
- */
-
 public class History {
     private String date;
     @SerializedName("devices")
