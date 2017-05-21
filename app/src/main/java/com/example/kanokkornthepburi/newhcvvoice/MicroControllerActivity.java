@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,6 +39,8 @@ public class MicroControllerActivity extends AppCompatActivity implements MicroC
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.clRoot)
+    CoordinatorLayout clRoot;
 
     MicroControllerAdapter microControllerAdapter;
     private MaterialDialog materialDialog;
@@ -100,7 +104,7 @@ public class MicroControllerActivity extends AppCompatActivity implements MicroC
     }
 
     private void AddMicroController(String nameEng, String nameThai) {
-        actionResponseCall = Client.getInstance().getService().addMicroller(nameEng);
+        actionResponseCall = Client.getInstance().getService().addMicroller(nameEng, nameThai);
         actionResponseCall.enqueue(new Callback<ActionResponse>() {
             @Override
             public void onResponse(Call<ActionResponse> call, Response<ActionResponse> response) {
@@ -108,11 +112,13 @@ public class MicroControllerActivity extends AppCompatActivity implements MicroC
                     String status = response.body().getStatus();
                     if (status.equals("complete")) {
                         refreshList();
+                        showSnackBar("Completed");
                     }
                     if (status.equals("not complete")) {
+                        showSnackBar("Can not Add");
                     }
                     if (status.equals("duplicate value")) {
-
+                        showSnackBar("Duplicate Name");
                     }
                 }
             }
@@ -175,29 +181,10 @@ public class MicroControllerActivity extends AppCompatActivity implements MicroC
         materialDialog = new MaterialDialog.Builder(MicroControllerActivity.this)
                 .title("Edit MicroController")
                 .customView(R.layout.view_devices_edit, true)
-                .positiveText("Save")
                 .negativeText("Cancel")
                 .neutralText("Delete")
                 .neutralColor(getResources().getColor(android.R.color.holo_red_light, getTheme()))
                 .positiveColor(getResources().getColor(R.color.colorPrimary, getTheme()))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        String nameEng = "";
-                        String nameThai = "";
-                        if (materialDialog.getCustomView() != null) {
-                            View view = materialDialog.getCustomView();
-                            if (view.findViewById(R.id.et_name_en) != null) {
-                                nameEng = ((EditText) view.findViewById(R.id.et_name_en)).getText().toString();
-                            }
-                            if (view.findViewById(R.id.et_name_th) != null) {
-                                nameThai = ((EditText) view.findViewById(R.id.et_name_th)).getText().toString();
-                            }
-                            //Edit Change
-                        }
-
-                    }
-                })
                 .onNeutral(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -209,10 +196,10 @@ public class MicroControllerActivity extends AppCompatActivity implements MicroC
         if (materialDialog.getCustomView() != null) {
             View view = materialDialog.getCustomView();
             if (view.findViewById(R.id.et_name_en) != null) {
-                ((EditText) view.findViewById(R.id.et_name_en)).setText(microController.getName());
+                ((EditText) view.findViewById(R.id.et_name_en)).setText(microController.getNameEng());
             }
             if (view.findViewById(R.id.et_name_th) != null) {
-                ((EditText) view.findViewById(R.id.et_name_th)).setText(microController.getName());
+                ((EditText) view.findViewById(R.id.et_name_th)).setText(microController.getNameThai());
             }
         }
 
@@ -221,9 +208,13 @@ public class MicroControllerActivity extends AppCompatActivity implements MicroC
 
     }
 
+    public void showSnackBar(String message) {
+        Snackbar.make(clRoot, message, Snackbar.LENGTH_SHORT).show();
+    }
+
     private void deleteMicroController(final MicroController microController) {
         new MaterialDialog.Builder(this)
-                .content("This will delete Microcontroller " + microController.getName())
+                .content("This will delete Microcontroller " + microController.getNameEng())
                 .positiveText("Delete")
                 .negativeText("Cancel")
                 .positiveColor(getResources().getColor(android.R.color.holo_red_light, getTheme()))
@@ -237,9 +228,10 @@ public class MicroControllerActivity extends AppCompatActivity implements MicroC
                                 String status = response.body().getStatus();
                                 if (status.equals("complete")) {
                                     refreshList();
+                                    showSnackBar("Completed");
                                 }
                                 if (status.equals("not complete")) {
-
+                                    showSnackBar("Can not delete");
                                 }
                             }
 

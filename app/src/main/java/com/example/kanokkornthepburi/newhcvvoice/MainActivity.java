@@ -22,17 +22,27 @@ import android.view.View;
 import com.example.kanokkornthepburi.newhcvvoice.Event.DisableDeviceEvent;
 import com.example.kanokkornthepburi.newhcvvoice.Event.EnableDeviceEvent;
 import com.example.kanokkornthepburi.newhcvvoice.Event.RefreshDeviceEvent;
+import com.example.kanokkornthepburi.newhcvvoice.Service.Client;
 import com.example.kanokkornthepburi.newhcvvoice.Service.Config;
+import com.example.kanokkornthepburi.newhcvvoice.Service.MicroGearDevice;
+import com.example.kanokkornthepburi.newhcvvoice.Service.MicroResponse;
 import com.example.kanokkornthepburi.newhcvvoice.Utils.PrefUtils;
 import com.example.kanokkornthepburi.newhcvvoice.Utils.PromptUtils;
-import com.squareup.otto.Bus;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.netpie.microgear.Microgear;
 import io.netpie.microgear.MicrogearEventListener;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends PromptActivity implements MicrogearEventListener, OnChangeStatusDeviceListener {
 
@@ -47,7 +57,9 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
     @BindView(R.id.clRoot)
     CoordinatorLayout clRoot;
     private Microgear microgear;
-    static Bus bus = new Bus();
+    private List<MicroGearDevice> microGearDeviceList = new ArrayList<>();
+
+    Call<MicroResponse> microResponseCall;
 
 
     private void connectMicrogear() {
@@ -60,14 +72,30 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
         }
     }
 
+    private void refreshDeviceList() {
+        microResponseCall = Client.getInstance().getService().microllers();
+        microResponseCall.enqueue(new Callback<MicroResponse>() {
+            @Override
+            public void onResponse(Call<MicroResponse> call, Response<MicroResponse> response) {
+                if (response.isSuccessful()) {
+                    UserData.getInstance().setMicroControllers(response.body().getMicroControllers());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MicroResponse> call, Throwable t) {
+            }
+        });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         connectMicrogear();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        bus = new Bus();
-        bus.register(this);
+
+        refreshDeviceList();
 
         MainPageAdapter mainPageAdapter = new MainPageAdapter(getSupportFragmentManager());
         vpMain.setAdapter(mainPageAdapter);
@@ -93,10 +121,13 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
                 PromptUtils.promptSpeechInput(MainActivity.this);
             }
         });
+
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, requestCode, data);
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
             ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             String sentence = result.get(0);
@@ -126,10 +157,10 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
             }
             if (UserData.getInstance().getMicroControllers() != null) {
                 for (MicroController microController : UserData.getInstance().getMicroControllers()) {
-                    if (sentence.contains(microController.getName())) {
+                    if (sentence.contains(microController.getNameThai())) {
                         if (getSupportActionBar() != null) {
-                            getSupportActionBar().setSubtitle("Home: " + microController.getName());
-                            UserData.getInstance().setActiveController(microController.getName());
+                            getSupportActionBar().setSubtitle("Home: " + microController.getNameEng());
+                            UserData.getInstance().setActiveController(microController.getNameEng());
                             refreshDevices();
                         }
                     }
@@ -139,7 +170,7 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
     }
 
     private void refreshDevices() {
-        bus.post(new RefreshDeviceEvent());
+        EventBus.getDefault().post(new RefreshDeviceEvent());
     }
 
 
@@ -191,7 +222,7 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
                 if (UserData.getInstance().getMicroControllers() != null) {
                     item.getSubMenu().clear();
                     for (MicroController microController : UserData.getInstance().getMicroControllers()) {
-                        item.getSubMenu().add(microController.getName());
+                        item.getSubMenu().add(microController.getNameEng());
                     }
                 }
                 break;
@@ -202,10 +233,10 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
                 break;
             default:
                 for (MicroController microController : UserData.getInstance().getMicroControllers()) {
-                    if (item.getTitle().equals(microController.getName())) {
-                        UserData.getInstance().setActiveController(microController.getName());
+                    if (item.getTitle().equals(microController.getNameEng())) {
+                        UserData.getInstance().setActiveController(microController.getNameEng());
                         if (getSupportActionBar() != null) {
-                            getSupportActionBar().setSubtitle("Home: " + microController.getName());
+                            getSupportActionBar().setSubtitle("Home: " + microController.getNameEng());
                         }
                         refreshDevices();
                     }
@@ -219,13 +250,15 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
     protected void onStop() {
         super.onStop();
         disableAutoPrompt();
+        if (microResponseCall != null) {
+            microResponseCall.cancel();
+        }
     }
 
 
     @Override
     public void onConnect() {
         Log.e("onConnect", "");
-        bus.post(new EnableDeviceEvent());
 
     }
 
@@ -233,17 +266,51 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
     public void onMessage(String topic, String message) {
         Log.e("onMessage:message", message);
         Log.e("onMessage:topic", topic);
+        if (message.contains(UserData.getInstance().getActiveController())) {
+            EventBus.getDefault().post(new RefreshDeviceEvent());
+            if (message.contains(UserData.getInstance().getUsername())) {
+                int index = message.indexOf(' ', message.indexOf(' ') + 1);
+                showSnackBar(message.substring(index, message.length() - 1));
+            }
+        }
     }
 
     @Override
     public void onPresent(String token) {
         Log.e("onPresent", token);
-
+        convertMicroGearDevice(token);
     }
 
     @Override
     public void onAbsent(String token) {
         Log.e("onAbsent", token);
+        convertMicroGearDevice(token);
+    }
+
+    private void convertMicroGearDevice(String token) {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        Gson gson = gsonBuilder.create();
+        MicroGearDevice device = gson.fromJson(token, MicroGearDevice.class);
+        boolean isHas = true;
+        for (int i = 0; i < microGearDeviceList.size(); i++) {
+            if (microGearDeviceList.get(i).getAlias().equals(device.getAlias())) {
+                microGearDeviceList.get(i).setType(device.getType());
+                isHas = false;
+            }
+        }
+        if (isHas) {
+            microGearDeviceList.add(device);
+        }
+
+        for (int i = 0; i < microGearDeviceList.size(); i++) {
+            if (microGearDeviceList.get(i).getAlias().equals(UserData.getInstance().getActiveController())) {
+                if (microGearDeviceList.get(i).getType().equals("online")) {
+                    EventBus.getDefault().post(new EnableDeviceEvent());
+                } else {
+                    EventBus.getDefault().post(new DisableDeviceEvent());
+                }
+            }
+        }
 
 
     }
@@ -251,14 +318,14 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
     @Override
     public void onDisconnect() {
         Log.e("onDisconnect", "");
-        bus.post(new DisableDeviceEvent());
+        EventBus.getDefault().post(new DisableDeviceEvent());
     }
 
     @Override
     public void onError(String error) {
         Log.e("exception", "Exception : " + error);
         if (error.equals("connection Lost") || error.equals("service disconnect")) {
-            bus.post(new DisableDeviceEvent());
+            EventBus.getDefault().post(new DisableDeviceEvent());
 
         } else {
             // Show Error
@@ -279,7 +346,7 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
     @Override
     public void onChangeStatus(Device device, boolean status) {
         if (!UserData.getInstance().getActiveController().isEmpty()) {
-            microgear.chat(UserData.getInstance().getActiveController(), "");
+            microgear.chat(UserData.getInstance().getActiveController(), UserData.getInstance().getUsername() + " one " + device.getChannel() + (status ? " ON" : " OFF"));
         } else {
             // Show Error
             showSnackBar("Please select MicroController before make order.");

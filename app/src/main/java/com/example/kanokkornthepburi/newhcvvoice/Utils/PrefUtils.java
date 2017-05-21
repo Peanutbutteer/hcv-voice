@@ -13,6 +13,7 @@ public class PrefUtils {
     private static PrefUtils mInstance;
     private static final String PREF_USER = "PREF_USER";
     private static final String PREF_MIC = "PREF_MIC";
+    private static final String PREF_HOME = "PREF_HOME";
 
     private PrefUtils(Context context) {
         this.mContext = context;
@@ -53,5 +54,13 @@ public class PrefUtils {
 
     public boolean isOpenMic() {
         return mSharePreferences.getBoolean(PREF_MIC, false);
+    }
+
+    public String getHome() {
+        return mSharePreferences.getString(PREF_HOME, "");
+    }
+
+    public void setHome(String home) {
+        mSharePreferences.edit().putString(PREF_HOME, home).apply();
     }
 }

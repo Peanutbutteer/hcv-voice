@@ -20,7 +20,7 @@ import butterknife.ButterKnife;
 public class DeviceAdapter extends RecyclerView.Adapter {
     private List<Device> devices;
     private OnChangeStatusDeviceListener mListener;
-    private boolean disconnected = false;
+    private boolean disconnected = true;
 
     public void setListener(OnChangeStatusDeviceListener mListener) {
         this.mListener = mListener;
@@ -47,9 +47,9 @@ public class DeviceAdapter extends RecyclerView.Adapter {
             DeviceHolder deviceHolder = (DeviceHolder) holder;
             deviceHolder.swStatus.setOnCheckedChangeListener(null);
             deviceHolder.name.setText(devices.get(position).getNameEng());
+            deviceHolder.swStatus.setChecked(devices.get(position).getStatus());
             if (!disconnected) {
                 deviceHolder.swStatus.setClickable(true);
-                deviceHolder.swStatus.setChecked(devices.get(position).getStatus());
                 deviceHolder.swStatus.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

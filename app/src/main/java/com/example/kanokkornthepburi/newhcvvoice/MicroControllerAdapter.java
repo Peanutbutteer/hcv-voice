@@ -37,7 +37,7 @@ public class MicroControllerAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-        ((MicroViewHolder) holder).tvName.setText(microControllers.get(position).getName());
+        ((MicroViewHolder) holder).tvName.setText(microControllers.get(position).getNameEng());
         ((MicroViewHolder) holder).llRoot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -24,9 +24,17 @@ public interface Service {
 
     @POST("add_microcontroller.php")
     @FormUrlEncoded
-    Call<ActionResponse> addMicroller(@Field("microController") String name);
+    Call<ActionResponse> addMicroller(@Field("microController") String name, @Field("microControllerTH") String nameThai);
 
     @POST("delete_microcontroller.php")
     @FormUrlEncoded
     Call<ActionResponse> deleteMicroller(@Field("id") int id);
+
+    @POST("add_device.php")
+    @FormUrlEncoded
+    Call<ActionResponse> addDevice(@Field("microController") String microControllerName, @Field("deviceName") String nameEng, @Field("deviceNameTH") String deviceNameTh);
+
+    @POST("edit_device.php")
+    @FormUrlEncoded
+    Call<ActionResponse> editDevice(@Field("id") int id, @Field("deviceName") String nameEng, @Field("deviceNameTH") String nameThai);
 }

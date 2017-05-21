@@ -16,8 +16,9 @@ import com.example.kanokkornthepburi.newhcvvoice.Event.EnableDeviceEvent;
 import com.example.kanokkornthepburi.newhcvvoice.Event.RefreshDeviceEvent;
 import com.example.kanokkornthepburi.newhcvvoice.Service.Client;
 import com.example.kanokkornthepburi.newhcvvoice.Service.DevicesResponse;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -74,12 +75,15 @@ public class VoiceControlsFragment extends Fragment implements OnChangeStatusDev
     @Override
     public void onResume() {
         super.onResume();
-        MainActivity.bus.register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
     @Subscribe
@@ -125,8 +129,8 @@ public class VoiceControlsFragment extends Fragment implements OnChangeStatusDev
         if (devicesResponseCall != null) {
             devicesResponseCall.cancel();
         }
-        MainActivity.bus.unregister(this);
     }
+
 
     public static VoiceControlsFragment newInstance() {
 

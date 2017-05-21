@@ -1,5 +1,7 @@
 package com.example.kanokkornthepburi.newhcvvoice;
 
+import com.example.kanokkornthepburi.newhcvvoice.Utils.PrefUtils;
+
 import java.util.ArrayList;
 
 /**
@@ -36,7 +38,7 @@ public class UserData {
     }
 
     private UserData() {
-
+        this.activeController = PrefUtils.getInstance().getHome();
     }
 
     public static UserData getInstance() { // Singleton pattern มาจากที่ว่า instance นั้นโปรแกรมนึงมีแค่อันเดียว (single) คือที่ return จาก getInstance() ไม่ว่าคลาสไหนเรียกก็จะได้ instance ตัวเดียวกันเสมอ
@@ -68,5 +70,6 @@ public class UserData {
 
     public void setActiveController(String activeController) {
         this.activeController = activeController;
+        PrefUtils.getInstance().setHome(activeController);
     }
 }
