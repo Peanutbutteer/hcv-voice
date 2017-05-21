@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.example.kanokkornthepburi.newhcvvoice.Event.RefreshGraphEvent;
+import com.example.kanokkornthepburi.newhcvvoice.Service.Client;
 import com.example.kanokkornthepburi.newhcvvoice.Service.DeviceHistory;
 import com.example.kanokkornthepburi.newhcvvoice.Service.History;
 import com.example.kanokkornthepburi.newhcvvoice.Service.HistoryResponse;
@@ -38,6 +39,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by kanokkornthepburi on 5/20/2017 AD.
@@ -102,33 +105,33 @@ public class GraphFragment extends Fragment {
     }
 
     private void fetchHistoryData() {
-        ArrayList<History> historis = new ArrayList<>();
-        List<DeviceHistory> dev = new ArrayList<>();
-        dev.add(new DeviceHistory("Fan", 4));
-        dev.add(new DeviceHistory("NoteBook", 3));
-        dev.add(new DeviceHistory("Phone", 2));
-        dev.add(new DeviceHistory("She", 1));
-        historis.add(new History("May 16", dev));
-        historis.add(new History("May 17", dev));
-        historis.add(new History("May 18", dev));
-        historis.add(new History("May 19", dev));
-        drawChart(historis);
+//        ArrayList<History> historis = new ArrayList<>();
+//        List<DeviceHistory> dev = new ArrayList<>();
+//        dev.add(new DeviceHistory("Fan", 4));
+//        dev.add(new DeviceHistory("NoteBook", 3));
+//        dev.add(new DeviceHistory("Phone", 2));
+//        dev.add(new DeviceHistory("She", 1));
+//        historis.add(new History("May 16", dev));
+//        historis.add(new History("May 17", dev));
+//        historis.add(new History("May 18", dev));
+//        historis.add(new History("May 19", dev));
+//        drawChart(historis);
 
 
-//        call = Client.getInstance().getService().getHistory(selected, UserData.getInstance().getActiveController());
-//        call.enqueue(new Callback<HistoryResponse>() {
-//            @Override
-//            public void onResponse(Call<HistoryResponse> call, Response<HistoryResponse> response) {
-//                if (response.isSuccessful()) {
-//                    drawChart(response.body().getHistories());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<HistoryResponse> call, Throwable t) {
-//
-//            }
-//        });
+        call = Client.getInstance().getService().getHistory(selected, UserData.getInstance().getActiveController());
+        call.enqueue(new Callback<HistoryResponse>() {
+            @Override
+            public void onResponse(Call<HistoryResponse> call, Response<HistoryResponse> response) {
+                if (response.isSuccessful()) {
+                    drawChart(response.body().getHistories());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HistoryResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -154,6 +157,8 @@ public class GraphFragment extends Fragment {
     }
 
     public void drawChart(final ArrayList<History> histories) {
+        if (histories == null || histories.size() == 0 || histories.get(0).getDeviceHistories() == null)
+            return;
 
         ArrayList<IBarDataSet> dataSets = new ArrayList<>();
 

@@ -1,5 +1,7 @@
 package com.example.kanokkornthepburi.newhcvvoice.Service;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 /**
@@ -8,6 +10,7 @@ import java.util.List;
 
 public class History {
     private String date;
+    @SerializedName("devices")
     private List<DeviceHistory> deviceHistories;
 
     public String getDate() {
