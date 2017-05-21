@@ -22,6 +22,7 @@ import android.view.View;
 import com.example.kanokkornthepburi.newhcvvoice.Event.DisableDeviceEvent;
 import com.example.kanokkornthepburi.newhcvvoice.Event.EnableDeviceEvent;
 import com.example.kanokkornthepburi.newhcvvoice.Event.RefreshDeviceEvent;
+import com.example.kanokkornthepburi.newhcvvoice.Event.RefreshGraphEvent;
 import com.example.kanokkornthepburi.newhcvvoice.Service.Client;
 import com.example.kanokkornthepburi.newhcvvoice.Service.Config;
 import com.example.kanokkornthepburi.newhcvvoice.Service.MicroGearDevice;
@@ -258,7 +259,7 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
     }
 
     private void refreshGraph() {
-        EventBus.getDefault().post(new RefreshDeviceEvent());
+        EventBus.getDefault().post(new RefreshGraphEvent());
     }
 
     @Override
