@@ -328,6 +328,9 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
                 }
             }
         }
+        if (microGearDeviceList.size() == 0) {
+            EventBus.getDefault().post(new DisableDeviceEvent());
+        }
 
 
     }
