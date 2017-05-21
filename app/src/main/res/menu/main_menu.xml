@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_device"
+        android:icon="@drawable/ic_devices_white_24dp"
+        android:title="Device"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_arduino"
+        android:icon="@drawable/ic_device_hub_white_24dp"
+        android:title="MicroController"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_change_home"
+        android:icon="@drawable/ic_autorenew_black_24dp"
+        android:title="Change Home"
+        app:showAsAction="always">
+        <menu></menu>
+    </item>
+    <item
+        android:id="@+id/action_mic"
+        android:icon="@drawable/ic_mic_off_black_24dp"
+        android:title="Mic"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_logout"
+        android:icon="@drawable/ic_exit_to_app_white_24dp"
+        android:title="Logout"
+        app:showAsAction="always" />
+</menu>
