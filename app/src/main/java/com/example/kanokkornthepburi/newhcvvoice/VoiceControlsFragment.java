@@ -93,14 +93,24 @@ public class VoiceControlsFragment extends Fragment implements OnChangeStatusDev
 
     @Subscribe
     public void disableDevice(DisableDeviceEvent event) {
-        deviceAdapter.setDisconnected(true);
-        deviceAdapter.notifyDataSetChanged();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                deviceAdapter.setDisconnected(true);
+                deviceAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Subscribe
     public void enableDevice(EnableDeviceEvent event) {
-        deviceAdapter.setDisconnected(false);
-        deviceAdapter.notifyDataSetChanged();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                deviceAdapter.setDisconnected(false);
+                deviceAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     public void refreshDevicesList() {

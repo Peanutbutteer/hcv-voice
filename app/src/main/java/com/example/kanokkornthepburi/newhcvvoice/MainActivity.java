@@ -91,7 +91,6 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        connectMicrogear();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
@@ -121,7 +120,7 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
                 PromptUtils.promptSpeechInput(MainActivity.this);
             }
         });
-
+        connectMicrogear();
 
     }
 
@@ -270,7 +269,8 @@ public class MainActivity extends PromptActivity implements MicrogearEventListen
             EventBus.getDefault().post(new RefreshDeviceEvent());
             if (message.contains(UserData.getInstance().getUsername())) {
                 int index = message.indexOf(' ', message.indexOf(' ') + 1);
-                showSnackBar(message.substring(index, message.length() - 1));
+                String messageSplit = message.substring(index, message.length() - 1);
+                showSnackBar(messageSplit);
             }
         }
     }
