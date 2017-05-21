@@ -158,7 +158,7 @@ public class GraphFragment extends Fragment {
 
     public void drawChart(final ArrayList<History> histories) {
         if (histories == null || histories.size() == 0 ||
-                histories.get(0).getDeviceHistories().size() == 0 ||
+                histories.get(0).getDeviceHistories().size() <= 1 ||
                 histories.get(0).getDeviceHistories() == null) {
             chart.clear();
             return;
@@ -195,12 +195,12 @@ public class GraphFragment extends Fragment {
 
                     if (hour == 0 && minute == 0 && second == 0)
                         return "";
-                    else if (hour == 0 && minute == 0 && second != 0)
+                    else if (hour == 0 && minute == 0)
                         return (int) second + "s";
-                    else if (hour == 0 && minute != 0)
+                    else if (hour == 0)
                         return (int) minute + "m " + (int) second + "s";
                     else
-                        return (int) hour + "histories " + (int) minute + "m ";
+                        return (int) hour + "hr " + (int) minute + "m ";
                 }
             });
         }
@@ -265,7 +265,7 @@ public class GraphFragment extends Fragment {
                 else if (hour == 0 && minute != 0)
                     return (int) minute + "m ";
                 else if (hour != 0)
-                    return (int) hour + "histories " + (int) minute + "m ";
+                    return (int) hour + "hr " + (int) minute + "m ";
                 else
                     return "";
             }
